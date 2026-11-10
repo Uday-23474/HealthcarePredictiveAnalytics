@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartCare AI - Prediction Result & Clinical Analysis</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1e293b;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: #0284c7;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .logo-text h2 {
+            font-size: 19px;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #475569;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #0284c7;
+        }
+
+        .nav-link.active {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 960px;
+            margin: 35px auto 60px;
+            padding: 0 20px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            color: #0f172a;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Card */
+        .main-card {
+            background: white;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 35px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+            margin-bottom: 24px;
+        }
+
+        /* Result Outcome Box */
+        .result-box {
+            text-align: center;
+            padding: 32px 24px;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 28px;
+        }
+
+        .result-box.detected {
+            background: #fef2f2;
+            border-color: #fecaca;
+        }
+
+        .result-box.normal {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .heart-badge {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 14px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+
+        .detected .heart-badge {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .normal .heart-badge {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .outcome-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .outcome-title {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .detected .outcome-title {
+            color: #991b1b;
+        }
+
+        .normal .outcome-title {
+            color: #166534;
+        }
+
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 13.5px;
+            font-weight: 700;
+        }
+
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Charts Grid */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.35fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .chart-panel {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .chart-panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .chart-panel-desc {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 14px;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        /* Explainable AI & Recommendations Grid */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        .insight-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 22px;
+            background: #f8fafc;
+        }
+
+        .insight-card h3 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .insight-list {
+            list-style: none;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .insight-list li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 8px;
+            color: #334155;
+        }
+
+        .flags-list li::before {
+            content: "⚠️";
+            position: absolute;
+            left: 0;
+            font-size: 12px;
+        }
+
+        .recs-list li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0284c7;
+            font-weight: bold;
+        }
+
+        /* Action Buttons */
+        .actions-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 25px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .btn-report {
+            background: #0284c7;
+            color: white;
+            box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
+        }
+
+        .btn-report:hover {
+            background: #0369a1;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #475569;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        .btn-predict {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-predict:hover {
+            background: #059669;
+        }
+
+        /* Disclaimer */
+        .disclaimer-box {
+            margin-top: 25px;
+            padding: 16px 20px;
+            background: #f1f5f9;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            .actions-row {
+                flex-direction: column;
+            }
+            .btn {
+                text-align: center;
+                justify-content: center;
+            }
+        }
+
+        /* Anatomical Cardiac & Coronary Mapping Studio */
+        .cardiac-visualizer-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+        }
+
+        .visualizer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 14px;
+        }
+
+        .visualizer-title h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .visualizer-title p {
+            font-size: 12.5px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .visualizer-grid {
+            display: grid;
+            grid-template-columns: 310px 1fr;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .heart-svg-stage {
+            background: linear-gradient(145deg, #0b1329 0%, #172554 100%);
+            border-radius: 16px;
+            padding: 24px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.5), 0 8px 24px rgba(15, 23, 42, 0.12);
+            overflow: hidden;
+        }
+
+        .heart-svg-stage::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        .cardiac-svg {
+            width: 230px;
+            height: 230px;
+            filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+            animation: cardiacPulse 1.2s infinite ease-in-out;
+            transform-origin: center center;
+        }
+
+        @keyframes cardiacPulse {
+            0% { transform: scale(1); }
+            14% { transform: scale(1.05); }
+            28% { transform: scale(1); }
+            42% { transform: scale(1.03); }
+            70% { transform: scale(1); }
+        }
+
+        .vessel-path {
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: all 0.5s ease;
+        }
+
+        .vessel-patent {
+            stroke: #38bdf8;
+            stroke-width: 4;
+            filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.7));
+        }
+
+        .vessel-stenosis-warning {
+            stroke: #fbbf24;
+            stroke-width: 5.5;
+            filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.85));
+            animation: arteryGlowAmber 1.2s infinite alternate;
+        }
+
+        .vessel-stenosis-severe {
+            stroke: #ef4444;
+            stroke-width: 6;
+            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.95));
+            animation: arteryGlowRed 0.8s infinite alternate;
+        }
+
+        @keyframes arteryGlowAmber {
+            from { stroke: #fbbf24; filter: drop-shadow(0 0 4px #fbbf24); }
+            to { stroke: #f59e0b; filter: drop-shadow(0 0 10px #f59e0b); }
+        }
+
+        @keyframes arteryGlowRed {
+            from { stroke: #ef4444; filter: drop-shadow(0 0 4px #ef4444); }
+            to { stroke: #dc2626; filter: drop-shadow(0 0 12px #dc2626); }
+        }
+
+        .scan-line {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.9), transparent);
+            animation: scanAnim 3s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes scanAnim {
+            0% { top: 0%; opacity: 0; }
+            15% { opacity: 1; }
+            85% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        .stage-caption {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-top: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        /* Telemetry Right Panel */
+        .telemetry-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .vessel-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .vessel-status-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .vessel-status-card strong {
+            display: block;
+            font-size: 12.5px;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+
+        .vessel-status-card small {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .pill-vessel {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .pill-vessel.patent { background: #dcfce7; color: #166534; }
+        .pill-vessel.stenosis-warn { background: #fef3c7; color: #92400e; }
+        .pill-vessel.stenosis-severe { background: #fee2e2; color: #991b1b; }
+
+        .clinical-perfusion-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 18px;
+        }
+
+        .clinical-perfusion-box h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .perfusion-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            font-size: 12.5px;
+        }
+
+        .metric-item-telemetry {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .metric-item-telemetry span {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 2px;
+        }
+
+        .metric-item-telemetry strong {
+            font-size: 13px;
+            color: #0f172a;
+        }
+
+        @media (max-width: 900px) {
+            .visualizer-grid {
+                grid-template-columns: 1fr;
+            }
+            .vessel-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .perfusion-metrics {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">♥</div>
+            <div class="logo-text">
+                <h2>HeartCare AI</h2>
+                <p>Healthcare Predictive Analytics</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-link">🩺 Predict</a>
+            <a href="/simulator" class="nav-link">🎚️ What-If Simulator</a>
+            <a href="/dashboard" class="nav-link">📊 Analytics Dashboard</a>
+            <a href="/analytics" class="nav-link">🔬 Model Benchmarks</a>
+            <a href="/history" class="nav-link">📋 Patient History</a>
+        </nav>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            Diagnosis Complete
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="page-heading">
+            <h1>Clinical Prediction Findings & Visual Analytics</h1>
+            <p>Evaluation completed via KNN classifier model against patient's submitted clinical biomarkers.</p>
+        </div>
+
+        <div class="main-card">
+
+            <!-- Primary Outcome Banner -->
+            <div class="result-box {% if result == 'Heart Disease Detected' %}detected{% else %}normal{% endif %}">
+                <div class="heart-badge">♥</div>
+                <div class="outcome-label">Primary Diagnostic Finding</div>
+                <div class="outcome-title">{{ result }}</div>
+
+                <div>
+                    {% if risk_level == 'Low Risk' %}
+                        <span class="risk-badge risk-low">● Low Risk Tier (&lt;30% Probability)</span>
+                    {% elif risk_level == 'Moderate Risk' %}
+                        <span class="risk-badge risk-moderate">● Moderate Risk Tier (30% - 60% Probability)</span>
+                    {% else %}
+                        <span class="risk-badge risk-high">● High Risk Tier (&gt;60% Probability)</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- INTERACTIVE ANATOMICAL CARDIAC & CORONARY MAPPING STUDIO -->
+            {% set v_count = 0 %}
+            {% if patient.vessels_colored_by_flourosopy == 'One' %}
+                {% set v_count = 1 %}
+            {% elif patient.vessels_colored_by_flourosopy == 'Two' %}
+                {% set v_count = 2 %}
+            {% elif patient.vessels_colored_by_flourosopy == 'Three' %}
+                {% set v_count = 3 %}
+            {% endif %}
+
+            <div class="cardiac-visualizer-card">
+                <div class="visualizer-header">
+                    <div class="visualizer-title">
+                        <h3>🫀 Anatomical Cardiac & Coronary Angiogram Visualizer</h3>
+                        <p>Simulated fluoroscopic artery reconstruction based on patient's fluoroscopy vessels & myocardial perfusion biomarkers</p>
+                    </div>
+                    <div>
+                        <span style="font-size: 12px; font-weight: 700; background: #eff6ff; color: #0284c7; padding: 5px 12px; border-radius: 20px; border: 1px solid #bfdbfe;">
+                            Heart Rate: {{ patient.max_heart_rate }} BPM
+                        </span>
+                    </div>
+                </div>
+
+                <div class="visualizer-grid">
+                    <!-- Heart Stage with SVG -->
+                    <div class="heart-svg-stage">
+                        <div class="scan-line"></div>
+                        
+                        <svg class="cardiac-svg" viewBox="0 0 260 260" xmlns="http://www.w3.org/2000/svg"
+                             style="animation-duration: {% if patient.max_heart_rate and patient.max_heart_rate > 40 %}{{ (60.0 / patient.max_heart_rate) | round(2) }}{% else %}0.9{% endif %}s;">
+                            <defs>
+                                <!-- Muscular Wall Gradient -->
+                                <linearGradient id="muscleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#991b1b" />
+                                    <stop offset="50%" stop-color="#7f1d1d" />
+                                    <stop offset="100%" stop-color="#450a0a" />
+                                </linearGradient>
+
+                                <!-- Aorta Gradient -->
+                                <linearGradient id="aortaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#dc2626" />
+                                    <stop offset="100%" stop-color="#991b1b" />
+                                </linearGradient>
+
+                                <!-- Vena Cava Gradient -->
+                                <linearGradient id="venaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#2563eb" />
+                                    <stop offset="100%" stop-color="#1e3a8a" />
+                                </linearGradient>
+
+                                <!-- Ischemic Tissue Pattern -->
+                                <pattern id="ischemiaHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                                    <line x1="0" y1="0" x2="0" y2="8" stroke="#f59e0b" stroke-width="2.5" opacity="0.85" />
+                                </pattern>
+                            </defs>
+
+                            <!-- Superior Vena Cava (Blue) -->
+                            <path d="M 75,30 C 75,50 78,75 80,95 L 105,92 C 103,75 101,50 101,30 Z" fill="url(#venaGrad)" opacity="0.9" />
+
+                            <!-- Pulmonary Artery (Cyan-Blue) -->
+                            <path d="M 125,50 C 135,45 155,50 170,62 C 160,75 145,80 135,82 Z" fill="#1d4ed8" opacity="0.85" />
+
+                            <!-- Aortic Arch (Curving Red) -->
+                            <path d="M 100,55 C 95,25 140,15 155,42 C 160,55 158,75 152,90 L 132,85 C 136,75 138,58 132,48 C 122,35 110,42 112,58 Z" fill="url(#aortaGrad)" />
+
+                            <!-- Main Cardiac Silhouette (Ventricular & Atrial Mass) -->
+                            <path d="M 85,92 C 60,105 52,145 65,180 C 78,215 115,245 132,252 C 148,245 190,205 198,165 C 205,125 185,95 150,90 C 135,88 110,88 85,92 Z" fill="url(#muscleGrad)" />
+
+                            <!-- Left Ventricle Muscular Shading -->
+                            <path d="M 132,105 C 155,115 185,140 182,185 C 178,218 145,245 132,252 C 130,225 130,150 132,105 Z" fill="#581c1c" opacity="0.45" />
+
+                            <!-- Myocardial Defect / Ischemia Tissue Overlay based on Thalassemia -->
+                            {% if patient.thalassemia == 'Reversable Defect' %}
+                            <!-- Reversible Ischemic Tissue Area -->
+                            <path d="M 135,140 C 158,150 175,175 172,210 C 158,235 138,248 132,250 C 132,210 133,165 135,140 Z" fill="url(#ischemiaHatch)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3" />
+                            <text x="145" y="195" font-size="9" fill="#fef08a" font-weight="bold" font-family="sans-serif">ISCHEMIA</text>
+                            {% elif patient.thalassemia == 'Fixed Defect' %}
+                            <!-- Fixed Infarct Scar Zone -->
+                            <path d="M 135,145 C 158,155 172,180 168,212 C 155,235 138,248 132,250 C 132,210 133,165 135,145 Z" fill="#334155" opacity="0.8" stroke="#64748b" stroke-width="1.5" />
+                            <text x="140" y="195" font-size="9" fill="#cbd5e1" font-weight="bold" font-family="sans-serif">INFARCT</text>
+                            {% endif %}
+
+                            <!-- CORONARY ARTERY TREE -->
+                            <!-- 1. Right Coronary Artery (RCA) -->
+                            <path class="vessel-path {% if v_count >= 2 %}vessel-stenosis-severe{% else %}vessel-patent{% endif %}"
+                                  d="M 108,98 C 88,115 80,145 82,180 C 85,205 95,225 105,235" />
+                            <path class="vessel-path {% if v_count >= 2 %}vessel-stenosis-severe{% else %}vessel-patent{% endif %}"
+                                  d="M 82,155 C 72,170 70,185 75,198" style="stroke-width: 2.5;" />
+
+                            <!-- 2. Left Circumflex Artery (LCx) -->
+                            <path class="vessel-path {% if v_count >= 3 %}vessel-stenosis-severe{% else %}vessel-patent{% endif %}"
+                                  d="M 145,95 C 168,105 185,128 188,155 C 190,175 182,195 175,208" />
+
+                            <!-- 3. Left Anterior Descending Artery (LAD) - The Critical Artery -->
+                            <path class="vessel-path {% if v_count >= 1 %}{% if v_count == 1 %}vessel-stenosis-warning{% else %}vessel-stenosis-severe{% endif %}{% else %}vessel-patent{% endif %}"
+                                  d="M 134,95 C 138,125 135,160 132,195 C 130,220 131,240 132,250" />
+                            <!-- LAD Diagonal Branches -->
+                            <path class="vessel-path {% if v_count >= 1 %}{% if v_count == 1 %}vessel-stenosis-warning{% else %}vessel-stenosis-severe{% endif %}{% else %}vessel-patent{% endif %}"
+                                  d="M 136,135 C 148,150 160,165 168,175" style="stroke-width: 2.5;" />
+                            <path class="vessel-path {% if v_count >= 1 %}{% if v_count == 1 %}vessel-stenosis-warning{% else %}vessel-stenosis-severe{% endif %}{% else %}vessel-patent{% endif %}"
+                                  d="M 134,175 C 145,190 152,205 156,215" style="stroke-width: 2;" />
+
+                            <!-- Labels in SVG -->
+                            <text x="50" y="145" font-size="9" fill="#94a3b8" font-weight="bold" font-family="sans-serif">RCA</text>
+                            <text x="145" y="115" font-size="9" fill="#94a3b8" font-weight="bold" font-family="sans-serif">LAD</text>
+                            <text x="195" y="140" font-size="9" fill="#94a3b8" font-weight="bold" font-family="sans-serif">LCx</text>
+                            <text x="115" y="258" font-size="8" fill="#cbd5e1" font-weight="600" font-family="sans-serif">Apex</text>
+                        </svg>
+
+                        <div class="stage-caption">
+                            {% if v_count == 0 %}
+                                <span style="color: #38bdf8;">● All 3 Major Coronary Arteries Patent</span>
+                            {% elif v_count == 1 %}
+                                <span style="color: #fbbf24;">⚠️ Single-Vessel Stenosis (LAD)</span>
+                            {% elif v_count == 2 %}
+                                <span style="color: #f87171;">⚠️ Bi-Vessel Stenosis (LAD + RCA)</span>
+                            {% else %}
+                                <span style="color: #ef4444;">🚨 Triple-Vessel Stenosis (Severe CAD)</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Metrics & Vessel Status Cards -->
+                    <div class="telemetry-panel">
+                        <!-- Artery Status Grid -->
+                        <div class="vessel-cards-grid">
+                            <!-- LAD Card -->
+                            <div class="vessel-status-card">
+                                <strong>LAD Artery</strong>
+                                <small>Ant. Interventricular</small>
+                                {% if v_count >= 1 %}
+                                    <span class="pill-vessel {% if v_count == 1 %}stenosis-warn{% else %}stenosis-severe{% endif %}">
+                                        ⚠️ Stenosis Detected
+                                    </span>
+                                {% else %}
+                                    <span class="pill-vessel patent">
+                                        ✓ Clear & Patent
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- RCA Card -->
+                            <div class="vessel-status-card">
+                                <strong>RCA Artery</strong>
+                                <small>Right Coronary Groove</small>
+                                {% if v_count >= 2 %}
+                                    <span class="pill-vessel stenosis-severe">
+                                        ⚠️ Stenosis Detected
+                                    </span>
+                                {% else %}
+                                    <span class="pill-vessel patent">
+                                        ✓ Clear & Patent
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- LCx Card -->
+                            <div class="vessel-status-card">
+                                <strong>LCx Artery</strong>
+                                <small>Left Circumflex</small>
+                                {% if v_count >= 3 %}
+                                    <span class="pill-vessel stenosis-severe">
+                                        ⚠️ Stenosis Detected
+                                    </span>
+                                {% else %}
+                                    <span class="pill-vessel patent">
+                                        ✓ Clear & Patent
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Perfusion & Ischemia Diagnostic Telemetry -->
+                        <div class="clinical-perfusion-box">
+                            <h4>🔬 Myocardial Perfusion & Fluoroscopy Telemetry</h4>
+                            <div class="perfusion-metrics">
+                                <div class="metric-item-telemetry">
+                                    <span>Fluoroscopy Vessels:</span>
+                                    <strong style="color: {% if v_count > 0 %}#dc2626{% else %}#16a34a{% endif %};">
+                                        {{ patient.vessels_colored_by_flourosopy }} ({{ v_count }}/3)
+                                    </strong>
+                                </div>
+
+                                <div class="metric-item-telemetry">
+                                    <span>Myocardial Perfusion:</span>
+                                    <strong>{{ patient.thalassemia }}</strong>
+                                </div>
+
+                                <div class="metric-item-telemetry">
+                                    <span>ST Depression (Oldpeak):</span>
+                                    <strong style="color: {% if patient.oldpeak > 1.5 %}#dc2626{% else %}#0f172a{% endif %};">
+                                        {{ patient.oldpeak }} mm ({{ patient.slope }})
+                                    </strong>
+                                </div>
+
+                                <div class="metric-item-telemetry">
+                                    <span>Exercise Angina:</span>
+                                    <strong style="color: {% if patient.exercise_induced_angina == 'Yes' %}#dc2626{% else %}#16a34a{% endif %};">
+                                        {{ patient.exercise_induced_angina }}
+                                    </strong>
+                                </div>
+
+                                <div class="metric-item-telemetry">
+                                    <span>Resting ECG:</span>
+                                    <strong>{{ patient.rest_ecg }}</strong>
+                                </div>
+
+                                <div class="metric-item-telemetry">
+                                    <span>Chest Pain Class:</span>
+                                    <strong>{{ patient.chest_pain_type }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VISUAL ANALYTICS: PREDICTION CHARTS -->
+            <div class="charts-grid">
+
+                <!-- Graph 1: Prediction Confidence Doughnut Gauge -->
+                <div class="chart-panel" style="text-align: center;">
+                    <div class="chart-panel-title">Diagnostic Risk Confidence Gauge</div>
+                    <div class="chart-panel-desc">Calculated probability distribution by KNN model</div>
+                    <div class="chart-box">
+                        <canvas id="predictionProbabilityChart"></canvas>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 13.5px; font-weight: 700; color: {% if result == 'Heart Disease Detected' %}#dc2626{% else %}#16a34a{% endif %};">
+                        {{ probability }}% Cardiac Risk Score
+                    </div>
+                </div>
+
+                <!-- Graph 2: Patient Biomarkers vs Normal Safe Baseline -->
+                <div class="chart-panel">
+                    <div class="chart-panel-title">Patient Biomarkers vs Normal Baseline</div>
+                    <div class="chart-panel-desc">Visual comparison against clinical reference standards</div>
+                    <div class="chart-box">
+                        <canvas id="patientBiomarkersChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Multi-Model Consensus & Voting Panel -->
+            {% if ensemble %}
+            <div style="background: white; border: 1px solid #e2e8f0; border-radius: 14px; padding: 22px; margin-bottom: 28px; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h3 style="font-size: 15px; font-weight: 700; color: #0f172a; margin: 0 0 3px;">
+                            🗳️ Multi-Model Clinical Consensus Panel (Ensemble Validation)
+                        </h3>
+                        <p style="font-size: 12px; color: #64748b; margin: 0;">
+                            Cross-validating patient case across 4 distinct machine learning algorithmic paradigms
+                        </p>
+                    </div>
+                    <div>
+                        <span style="background: #e0f2fe; color: #0284c7; padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                            {{ ensemble.consensus_status }}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;">
+                    {% for m_name, m_data in ensemble.models.items() %}
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; text-align: center;">
+                        <div style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700; margin-bottom: 4px;">
+                            {{ m_name }}
+                        </div>
+                        <div style="font-size: 18px; font-weight: 800; color: {% if m_data.is_detected %}#dc2626{% else %}#16a34a{% endif %}; margin-bottom: 4px;">
+                            {{ m_data.probability }}%
+                        </div>
+                        <span style="display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; {% if m_data.is_detected %}background: #fee2e2; color: #991b1b;{% else %}background: #dcfce7; color: #166534;{% endif %}">
+                            {% if m_data.is_detected %}Detected{% else %}Clear{% endif %}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Explainable AI (XAI) & Clinical Recommendations -->
+            <div class="insights-grid">
+                <!-- Identified Risk Biomarkers -->
+                <div class="insight-card">
+                    <h3>⚠️ Flagged Risk Indicators (Explainable AI)</h3>
+                    <ul class="insight-list flags-list">
+                        {% if risk_factors %}
+                            {% for factor in risk_factors %}
+                                <li>{{ factor }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No critical anomaly thresholds were exceeded across submitted biomarkers.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <!-- Preventive Protocol -->
+                <div class="insight-card">
+                    <h3>📋 Clinical Lifestyle & Medical Protocol</h3>
+                    <ul class="insight-list recs-list">
+                        {% if recommendations %}
+                            {% for rec in recommendations %}
+                                <li>{{ rec }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>Maintain periodic annual health examinations and cardiovascular vitals tracking.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="actions-row">
+                {% if patient_id %}
+                <a href="/patient-report/{{ patient_id }}" class="btn btn-report">
+                    🖨️ Download / Print Diagnostic Report (PDF)
+                </a>
+                {% endif %}
+
+                <a href="/" class="btn btn-predict">
+                    🩺 + New Prediction
+                </a>
+
+                <a href="/dashboard" class="btn btn-secondary">
+                    📊 Analytics Dashboard
+                </a>
+
+                <a href="/history" class="btn btn-secondary">
+                    📋 Patient History
+                </a>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer-box">
+                <strong>Clinical Decision-Support Notice:</strong> This prediction was generated using the trained <strong>KNN Model (88.52% benchmark accuracy)</strong>. This analytics platform is designed to assist healthcare screening and is not a replacement for a formal clinical diagnosis by a licensed cardiologist.
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Chart.js Graph Initialization Scripts -->
+    <script>
+        const probValue = {{ probability }};
+        const healthyMargin = Math.max(0, +(100 - probValue).toFixed(2));
+        const isDetected = "{{ result }}" === "Heart Disease Detected";
+
+        // 1. Prediction Probability Doughnut Gauge Chart
+        new Chart(document.getElementById('predictionProbabilityChart').getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Cardiac Risk Probability', 'Healthy Margin'],
+                datasets: [{
+                    data: [probValue, healthyMargin],
+                    backgroundColor: [
+                        isDetected ? '#ef4444' : '#10b981',
+                        '#e2e8f0'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                },
+                cutout: '68%'
+            }
+        });
+
+        // 2. Patient Biomarkers Comparison Grouped Bar Chart
+        const patientBP = {{ patient.resting_blood_pressure or 120 }};
+        const patientChol = {{ patient.cholestoral or 200 }};
+        const patientHR = {{ patient.max_heart_rate or 150 }};
+
+        new Chart(document.getElementById('patientBiomarkersChart').getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Resting BP (mmHg)',
+                    'Cholesterol (mg/dL)',
+                    'Max HR (bpm)'
+                ],
+                datasets: [
+                    {
+                        label: 'Patient Observed',
+                        data: [patientBP, patientChol, patientHR],
+                        backgroundColor: isDetected ? 'rgba(239, 68, 68, 0.85)' : 'rgba(2, 132, 199, 0.85)',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Normal Benchmark',
+                        data: [120, 200, 150],
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { font: { size: 11 } }
+                    },
+                    x: {
+                        ticks: { font: { size: 11 } }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 12, font: { size: 11 } }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

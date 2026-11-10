@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+{% from "_macros.html" import field with context %}
+{% block title %}New prediction | HeartCare AI{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1>New heart disease prediction</h1>
+      <p>Enter the patient's 13 clinical values. The model compares them with similar past cases and returns a probability and a risk level.</p>
+    </div>
+  </div>
+
+  <!-- Quick-Load Demonstration Presets -->
+  <div class="preset-card" style="background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+      <div>
+        <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); background: var(--primary-soft); padding: 3px 10px; border-radius: 20px;">
+          ⚡ Quick-Load Presets
+        </span>
+        <strong style="display: block; font-size: 1.05rem; font-family: var(--serif); color: var(--ink); margin-top: 4px;">
+          Clinical Archetype Scenarios
+        </strong>
+      </div>
+      <button type="button" class="btn btn--sm" onclick="clearForm()" style="font-size: 0.85rem; padding: 6px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 6px; cursor: pointer;">
+        🔄 Clear Form
+      </button>
+    </div>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;">
+      <button type="button" onclick="loadCase('high')" class="preset-pill" style="display: flex; align-items: flex-start; gap: 10px; text-align: left; padding: 12px 14px; background: var(--surface); border: 1.5px solid var(--high-soft); border-radius: 8px; cursor: pointer; transition: 0.2s;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--high); margin-top: 4px; flex-shrink: 0;"></span>
+        <div>
+          <strong style="display: block; font-size: 0.9rem; color: var(--ink);">Case A: High-Risk CAD (100% Risk)</strong>
+          <span style="display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px;">52M • BP 148 • Chol 255 • Max HR 168 • 2 Blocked Vessels</span>
+        </div>
+      </button>
+
+      <button type="button" onclick="loadCase('moderate')" class="preset-pill" style="display: flex; align-items: flex-start; gap: 10px; text-align: left; padding: 12px 14px; background: var(--surface); border: 1.5px solid var(--mod-soft); border-radius: 8px; cursor: pointer; transition: 0.2s;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--mod-bar); margin-top: 4px; flex-shrink: 0;"></span>
+        <div>
+          <strong style="display: block; font-size: 0.9rem; color: var(--ink);">Case B: Borderline Risk (40% Risk)</strong>
+          <span style="display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px;">51M • BP 125 • Chol 213 • Max HR 125 • 1 Blocked Vessel</span>
+        </div>
+      </button>
+
+      <button type="button" onclick="loadCase('normal')" class="preset-pill" style="display: flex; align-items: flex-start; gap: 10px; text-align: left; padding: 12px 14px; background: var(--surface); border: 1.5px solid var(--low-soft); border-radius: 8px; cursor: pointer; transition: 0.2s;">
+        <span style="width: 10px; height: 10px; border-radius: 50%; background: var(--low); margin-top: 4px; flex-shrink: 0;"></span>
+        <div>
+          <strong style="display: block; font-size: 0.9rem; color: var(--ink);">Case C: Low Risk Baseline (20% Risk)</strong>
+          <span style="display: block; font-size: 0.78rem; color: var(--muted); margin-top: 2px;">44M • BP 120 • Chol 169 • Max HR 144 • 0 Blocked Vessels</span>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div class="predict-layout">
+    <form id="predict-form" class="sheet" method="post" action="{{ url_for('predict') }}" novalidate>
+      {% if errors %}
+      <div class="alert" id="form-alert" role="alert" tabindex="-1">
+        {{ errors|length }} {{ 'value needs' if errors|length == 1 else 'values need' }} fixing. Check the highlighted fields and predict again.
+      </div>
+      {% endif %}
+
+      {% for g in groups %}
+      <section class="group" aria-labelledby="g-{{ g.id }}">
+        <h2 id="g-{{ g.id }}">{{ g.title }}</h2>
+        <p class="group__desc">{{ g.desc }}</p>
+        <div class="grid">
+          {% for f in g.fields %}{{ field(f) }}{% endfor %}
+        </div>
+      </section>
+      {% endfor %}
+    </form>
+
+    <aside class="rail" aria-label="Form progress">
+      <h2>Form progress</h2>
+      <div class="meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="13" aria-valuenow="0" aria-label="Values entered">
+        <span id="meter-fill"></span>
+      </div>
+      <p class="rail__count" id="meter-text">0 of 13 values entered</p>
+      <button class="btn btn--primary btn--block" type="submit" form="predict-form" id="predict-btn">Predict heart disease</button>
+      <p class="rail__note">This tool is for learning and decision support. It does not diagnose heart disease. Ask a doctor about any health concern.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+  var demoCases = {
+    high: {
+      age: 52,
+      sex: "Male",
+      chest_pain_type: "Non-anginal pain",
+      max_heart_rate: 168,
+      exercise_angina: "No",
+      resting_bp: 148,
+      cholesterol: 255,
+      fasting_blood_sugar: "Greater than 120 mg/ml",
+      rest_ecg: "ST-T wave abnormality",
+      oldpeak: 1.6,
+      slope: "Downsloping",
+      vessels: "Two",
+      thalassemia: "Fixed Defect"
+    },
+    moderate: {
+      age: 51,
+      sex: "Male",
+      chest_pain_type: "Asymptomatic",
+      max_heart_rate: 125,
+      exercise_angina: "No",
+      resting_bp: 125,
+      cholesterol: 213,
+      fasting_blood_sugar: "Lower than 120 mg/ml",
+      rest_ecg: "Normal",
+      oldpeak: 1.4,
+      slope: "Downsloping",
+      vessels: "One",
+      thalassemia: "Fixed Defect"
+    },
+    normal: {
+      age: 44,
+      sex: "Male",
+      chest_pain_type: "Typical angina",
+      max_heart_rate: 144,
+      exercise_angina: "Yes",
+      resting_bp: 120,
+      cholesterol: 169,
+      fasting_blood_sugar: "Lower than 120 mg/ml",
+      rest_ecg: "ST-T wave abnormality",
+      oldpeak: 2.8,
+      slope: "Upsloping",
+      vessels: "Zero",
+      thalassemia: "Normal"
+    }
+  };
+
+  function loadCase(type) {
+    var data = demoCases[type];
+    if (!data) return;
+    for (var key in data) {
+      if (data.hasOwnProperty(key)) {
+        var el = document.getElementById("f-" + key);
+        if (el) {
+          el.value = data[key];
+          el.dispatchEvent(new Event("input", { bubbles: true }));
+          el.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+      }
+    }
+  }
+
+  function clearForm() {
+    var form = document.getElementById("predict-form");
+    if (form) {
+      form.reset();
+      var fields = form.querySelectorAll(".field input, .field select");
+      fields.forEach(function (el) {
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+    }
+  }
+</script>
+{% endblock %}

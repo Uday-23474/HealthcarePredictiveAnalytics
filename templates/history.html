@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartCare AI - Patient Prediction History</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1e293b;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: #0284c7;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .logo-text h2 {
+            font-size: 19px;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #475569;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #0284c7;
+        }
+
+        .nav-link.active {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1240px;
+            margin: 35px auto 60px;
+            padding: 0 20px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            color: #0f172a;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            padding: 9px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13.5px;
+            width: 250px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box:focus {
+            border-color: #0284c7;
+        }
+
+        .filter-select {
+            padding: 9px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13.5px;
+            background: white;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-export {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 18px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 13.5px;
+            transition: 0.2s;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+        }
+
+        /* History Table Card */
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        th, td {
+            padding: 13px 16px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .id-badge {
+            color: #0284c7;
+            font-weight: 700;
+        }
+
+        .risk-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .risk-pill.low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-pill.moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-pill.high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-report {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e0f2fe;
+            color: #0284c7;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+
+        .btn-report:hover {
+            background: #0284c7;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 16px;
+            }
+            .nav-links {
+                display: none;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">♥</div>
+            <div class="logo-text">
+                <h2>HeartCare AI</h2>
+                <p>Healthcare Predictive Analytics</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-link">🩺 Predict</a>
+            <a href="/simulator" class="nav-link">🎚️ What-If Simulator</a>
+            <a href="/dashboard" class="nav-link">📊 Analytics Dashboard</a>
+            <a href="/analytics" class="nav-link">🔬 Model Benchmarks</a>
+            <a href="/history" class="nav-link active">📋 Patient History</a>
+        </nav>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="page-heading">
+            <div>
+                <h1>Patient Prediction History</h1>
+                <p>Auditable historical records of all clinical evaluations stored in MySQL.</p>
+            </div>
+            <div>
+                <a href="/export-history" class="btn-export">
+                    📥 Export Records to CSV
+                </a>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="toolbar">
+            <div class="filter-group">
+                <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by ID or details...">
+
+                <select id="riskFilter" class="filter-select">
+                    <option value="ALL">All Risk Tiers</option>
+                    <option value="Low Risk">Low Risk (&lt;30%)</option>
+                    <option value="Moderate Risk">Moderate Risk (30-60%)</option>
+                    <option value="High Risk">High Risk (&gt;60%)</option>
+                </select>
+            </div>
+
+            <div style="font-size: 13px; color: #64748b;">
+                Total Stored Records: <strong>{{ predictions | length }}</strong>
+            </div>
+        </div>
+
+        <!-- History Records Table -->
+        <div class="table-card">
+            {% if predictions %}
+            <div style="overflow-x: auto;">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Record ID</th>
+                            <th>Age</th>
+                            <th>Sex</th>
+                            <th>Chest Pain</th>
+                            <th>Resting BP</th>
+                            <th>Cholesterol</th>
+                            <th>Max HR</th>
+                            <th>Prediction Result</th>
+                            <th>Probability</th>
+                            <th>Risk Tier</th>
+                            <th>Date Logged</th>
+                            <th>Diagnostic Report</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in predictions %}
+                        <tr class="history-row" data-risk="{{ item.risk_level }}" data-id="{{ item.patient_id }}">
+                            <td class="id-badge">#{{ item.patient_id }}</td>
+                            <td>{{ item.age }} yrs</td>
+                            <td>{{ item.sex }}</td>
+                            <td>{{ item.chest_pain_type }}</td>
+                            <td>{{ item.resting_blood_pressure }} mmHg</td>
+                            <td>{{ item.cholestoral }} mg/dL</td>
+                            <td>{{ item.max_heart_rate }} bpm</td>
+                            <td><strong>{{ item.prediction_result }}</strong></td>
+                            <td><strong>{{ item.probability }}%</strong></td>
+                            <td>
+                                {% if item.risk_level == 'Low Risk' %}
+                                    <span class="risk-pill low">Low Risk</span>
+                                {% elif item.risk_level == 'Moderate Risk' %}
+                                    <span class="risk-pill moderate">Moderate Risk</span>
+                                {% else %}
+                                    <span class="risk-pill high">High Risk</span>
+                                {% endif %}
+                            </td>
+                            <td style="color: #64748b; font-size: 12px;">{{ item.predicted_at }}</td>
+                            <td>
+                                <a href="/patient-report/{{ item.patient_id }}" class="btn-report">
+                                    📄 View Report
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div style="padding: 40px; text-align: center; color: #64748b;">
+                No patient history records found.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Client-side Interactive Filter Script -->
+    <script>
+        const searchInput = document.getElementById('searchInput');
+        const riskFilter = document.getElementById('riskFilter');
+        const rows = document.querySelectorAll('.history-row');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedRisk = riskFilter.value;
+
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                const rowRisk = row.getAttribute('data-risk');
+
+                const matchesSearch = text.includes(searchTerm);
+                const matchesRisk = (selectedRisk === 'ALL') || (rowRisk === selectedRisk);
+
+                if (matchesSearch && matchesRisk) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        if (searchInput && riskFilter) {
+            searchInput.addEventListener('input', filterTable);
+            riskFilter.addEventListener('change', filterTable);
+        }
+    </script>
+
+</body>
+</html>

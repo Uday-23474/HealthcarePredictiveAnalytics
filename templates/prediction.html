@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HeartCare AI - New Prediction</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1f2937;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: #0d6efd;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .logo-text h2 {
+            font-size: 20px;
+            color: #123b5d;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #4b5563;
+            font-size: 13px;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #475569;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #0284c7;
+        }
+
+        .nav-link.active {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+        }
+
+        /* Main */
+        .main {
+            max-width: 1100px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        .page-title {
+            margin-bottom: 25px;
+        }
+
+        .page-title h1 {
+            font-size: 28px;
+            color: #123b5d;
+            margin-bottom: 7px;
+        }
+
+        .page-title p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        /* Form Card */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e8eef3;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section:last-of-type {
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 13px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #edf1f5;
+        }
+
+        .section-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: #eaf3ff;
+            color: #0d6efd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 17px;
+        }
+
+        .section-title h3 {
+            font-size: 17px;
+            color: #1f3c55;
+        }
+
+        .section-title p {
+            font-size: 12px;
+            color: #8a94a6;
+            margin-top: 3px;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            height: 44px;
+            padding: 0 13px;
+            border: 1px solid #d7dee7;
+            border-radius: 9px;
+            background: #fff;
+            color: #374151;
+            font-size: 14px;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+        }
+
+        input::placeholder {
+            color: #a0a8b3;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        /* Button */
+        .button-area {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #edf1f5;
+        }
+
+        button {
+            width: 100%;
+            height: 50px;
+            border: none;
+            border-radius: 10px;
+            background: #0d6efd;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #0b5ed7;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 14px rgba(13, 110, 253, 0.22);
+        }
+
+        .button-note {
+            text-align: center;
+            margin-top: 10px;
+            color: #8a94a6;
+            font-size: 11px;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            margin-top: 20px;
+            padding: 13px 16px;
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            border-radius: 9px;
+            color: #6b7280;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+
+            .header {
+                padding: 0 18px;
+            }
+
+            .status {
+                display: none;
+            }
+
+            .main {
+                margin: 25px auto;
+                padding: 0 12px;
+            }
+
+            .page-title h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .full-width {
+                grid-column: auto;
+            }
+        }
+
+        /* Quick-Load Viva Presets Box */
+        .preset-banner {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .preset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .preset-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: #0284c7;
+            background: #e0f2fe;
+            padding: 3px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .preset-title-box h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0 0 2px;
+        }
+
+        .preset-title-box p {
+            font-size: 12.5px;
+            color: #64748b;
+            margin: 0;
+        }
+
+        .btn-clear {
+            background: white;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: auto;
+            height: auto;
+        }
+
+        .btn-clear:hover {
+            background: #fee2e2;
+            color: #991b1b;
+            border-color: #fca5a5;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .preset-btn {
+            background: white;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 12px 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            height: auto;
+            width: 100%;
+            color: inherit;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .preset-btn.btn-case-high {
+            border-color: #fecaca;
+        }
+        .preset-btn.btn-case-high:hover {
+            border-color: #ef4444;
+            background: #fff5f5;
+        }
+
+        .preset-btn.btn-case-mod {
+            border-color: #fed7aa;
+        }
+        .preset-btn.btn-case-mod:hover {
+            border-color: #f97316;
+            background: #fffaf0;
+        }
+
+        .preset-btn.btn-case-low {
+            border-color: #bbf7d0;
+        }
+        .preset-btn.btn-case-low:hover {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        .case-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .dot-high { background: #ef4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
+        .dot-mod { background: #f59e0b; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2); }
+        .dot-low { background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2); }
+
+        .preset-details strong {
+            display: block;
+            font-size: 13.5px;
+            color: #0f172a;
+            margin-bottom: 3px;
+        }
+
+        .preset-details span {
+            display: block;
+            font-size: 11.5px;
+            color: #64748b;
+            line-height: 1.35;
+        }
+
+        @media (max-width: 850px) {
+            .preset-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+
+        <div class="logo">
+            <div class="logo-icon">
+                ♥
+            </div>
+
+            <div class="logo-text">
+                <h2>HeartCare AI</h2>
+                <p>Healthcare Predictive Analytics</p>
+            </div>
+        </div>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-link active">🩺 Predict</a>
+            <a href="/simulator" class="nav-link">🎚️ What-If Simulator</a>
+            <a href="/dashboard" class="nav-link">📊 Analytics Dashboard</a>
+            <a href="/analytics" class="nav-link">🔬 Model Benchmarks</a>
+            <a href="/history" class="nav-link">📋 Patient History</a>
+        </nav>
+
+        <div class="status">
+            <span class="status-dot"></span>
+            Prediction System Online
+        </div>
+
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="main">
+
+        <div class="page-title">
+            <h1>New Heart Disease Prediction</h1>
+            <p>Enter the patient's clinical information to generate a machine learning prediction.</p>
+        </div>
+
+
+        <div class="card">
+
+            <!-- Clinical Demonstration Presets -->
+            <div class="preset-banner">
+                <div class="preset-header">
+                    <div class="preset-title-box">
+                        <span class="preset-badge">⚡ Quick-Load Demonstration Presets</span>
+                        <h3>Clinical Archetype Scenarios</h3>
+                        <p>Click any scenario below to auto-fill the form for instant presentation, or enter patient vitals manually.</p>
+                    </div>
+                    <button type="button" class="btn-clear" onclick="clearForm()">
+                        🔄 Clear All Fields
+                    </button>
+                </div>
+
+                <div class="preset-grid">
+                    <button type="button" class="preset-btn btn-case-high" onclick="loadCase('high')">
+                        <span class="case-indicator dot-high"></span>
+                        <div class="preset-details">
+                            <strong>Case A: High-Risk CAD (100% Risk)</strong>
+                            <span>52M • BP 148 • Chol 255 • Max HR 168 • ST 1.6 • 2 Blocked Vessels</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="preset-btn btn-case-mod" onclick="loadCase('moderate')">
+                        <span class="case-indicator dot-mod"></span>
+                        <div class="preset-details">
+                            <strong>Case B: Borderline Risk (40% Risk)</strong>
+                            <span>51M • BP 125 • Chol 213 • Max HR 125 • ST 1.4 • 1 Blocked Vessel</span>
+                        </div>
+                    </button>
+
+                    <button type="button" class="preset-btn btn-case-low" onclick="loadCase('normal')">
+                        <span class="case-indicator dot-low"></span>
+                        <div class="preset-details">
+                            <strong>Case C: Low Risk Baseline (20% Risk)</strong>
+                            <span>44M • BP 120 • Chol 169 • Max HR 144 • Clear Vessels</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <form action="/predict" method="POST">
+
+
+                <!-- Patient Information -->
+                <div class="section">
+
+                    <div class="section-title">
+
+                        <div class="section-icon">
+                            +
+                        </div>
+
+                        <div>
+                            <h3>Patient Information</h3>
+                            <p>Basic patient details</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input
+                                type="number"
+                                name="age"
+                                min="1"
+                                placeholder="Enter age"
+                                required
+                            >
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Sex</label>
+
+                            <select name="sex" required>
+                                <option value="">Select sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Cardiac Information -->
+                <div class="section">
+
+                    <div class="section-title">
+
+                        <div class="section-icon">
+                            ❤️
+                        </div>
+
+                        <div>
+                            <h3>Cardiac Information</h3>
+                            <p>Heart-related clinical indicators</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Chest Pain Type</label>
+
+                            <select name="chest_pain_type" required>
+                                <option value="">Select chest pain type</option>
+                                <option value="Typical angina">Typical angina</option>
+                                <option value="Atypical angina">Atypical angina</option>
+                                <option value="Non-anginal pain">Non-anginal pain</option>
+                                <option value="Asymptomatic">Asymptomatic</option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Maximum Heart Rate</label>
+
+                            <input
+                                type="number"
+                                name="Max_heart_rate"
+                                placeholder="Enter maximum heart rate"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Exercise-Induced Angina</label>
+
+                            <select name="exercise_induced_angina" required>
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Medical Measurements -->
+                <div class="section">
+
+                    <div class="section-title">
+
+                        <div class="section-icon">
+                            🩺
+                        </div>
+
+                        <div>
+                            <h3>Medical Measurements</h3>
+                            <p>Blood pressure and blood test information</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+                        <div class="form-group">
+                            <label>Resting Blood Pressure</label>
+
+                            <input
+                                type="number"
+                                name="resting_blood_pressure"
+                                placeholder="Enter blood pressure"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Cholesterol</label>
+
+                            <input
+                                type="number"
+                                name="cholestoral"
+                                placeholder="Enter cholesterol level"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+                            <label>Fasting Blood Sugar</label>
+
+                            <select name="fasting_blood_sugar" required>
+                                <option value="">Select</option>
+                                <option value="Lower than 120 mg/ml">
+                                    Lower than 120 mg/ml
+                                </option>
+
+                                <option value="Greater than 120 mg/ml">
+                                    Greater than 120 mg/ml
+                                </option>
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ECG and Clinical Information -->
+                <div class="section">
+
+                    <div class="section-title">
+
+                        <div class="section-icon">
+                            📊
+                        </div>
+
+                        <div>
+                            <h3>ECG & Clinical Information</h3>
+                            <p>Additional cardiac examination indicators</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="form-grid">
+
+
+                        <div class="form-group">
+
+                            <label>Rest ECG</label>
+
+                            <select name="rest_ecg" required>
+                                <option value="">Select ECG result</option>
+
+                                <option value="Normal">
+                                    Normal
+                                </option>
+
+                                <option value="ST-T wave abnormality">
+                                    ST-T wave abnormality
+                                </option>
+
+                                <option value="Left ventricular hypertrophy">
+                                    Left ventricular hypertrophy
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>Oldpeak</label>
+
+                            <input
+                                type="number"
+                                name="oldpeak"
+                                step="0.1"
+                                placeholder="Enter Oldpeak value"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>Slope</label>
+
+                            <select name="slope" required>
+
+                                <option value="">
+                                    Select slope
+                                </option>
+
+                                <option value="Upsloping">
+                                    Upsloping
+                                </option>
+
+                                <option value="Flat">
+                                    Flat
+                                </option>
+
+                                <option value="Downsloping">
+                                    Downsloping
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>Vessels Colored by Fluoroscopy</label>
+
+                            <select
+                                name="vessels_colored_by_flourosopy"
+                                required
+                            >
+
+                                <option value="">
+                                    Select number of vessels
+                                </option>
+
+                                <option value="Zero">
+                                    Zero
+                                </option>
+
+                                <option value="One">
+                                    One
+                                </option>
+
+                                <option value="Two">
+                                    Two
+                                </option>
+
+                                <option value="Three">
+                                    Three
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group full-width">
+
+                            <label>Thalassemia</label>
+
+                            <select name="thalassemia" required>
+
+                                <option value="">
+                                    Select thalassemia result
+                                </option>
+
+                                <option value="Normal">
+                                    Normal
+                                </option>
+
+                                <option value="Fixed Defect">
+                                    Fixed Defect
+                                </option>
+
+                                <option value="Reversable Defect">
+                                    Reversable Defect
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Submit -->
+                <div class="button-area">
+
+                    <button type="submit">
+                        Predict Heart Disease
+                    </button>
+
+                    <p class="button-note">
+                       The prediction is generated using the trained KNN machine learning model.
+                    </p>
+
+                </div>
+
+
+                <div class="disclaimer">
+                    <strong>Medical Disclaimer:</strong>
+                    This system is designed for educational and predictive analytics purposes.
+                    The prediction should not be considered a medical diagnosis or a replacement
+                    for professional medical advice.
+                </div>
+
+            </form>
+
+        </div>
+
+    </main>
+
+    <script>
+        function loadCase(type) {
+            const cases = {
+                high: {
+                    age: 52,
+                    sex: "Male",
+                    chest_pain_type: "Non-anginal pain",
+                    Max_heart_rate: 168,
+                    exercise_induced_angina: "No",
+                    resting_blood_pressure: 148,
+                    cholestoral: 255,
+                    fasting_blood_sugar: "Greater than 120 mg/ml",
+                    rest_ecg: "ST-T wave abnormality",
+                    oldpeak: 1.6,
+                    slope: "Downsloping",
+                    vessels_colored_by_flourosopy: "Two",
+                    thalassemia: "Fixed Defect"
+                },
+                moderate: {
+                    age: 51,
+                    sex: "Male",
+                    chest_pain_type: "Asymptomatic",
+                    Max_heart_rate: 125,
+                    exercise_induced_angina: "No",
+                    resting_blood_pressure: 125,
+                    cholestoral: 213,
+                    fasting_blood_sugar: "Lower than 120 mg/ml",
+                    rest_ecg: "Normal",
+                    oldpeak: 1.4,
+                    slope: "Downsloping",
+                    vessels_colored_by_flourosopy: "One",
+                    thalassemia: "Fixed Defect"
+                },
+                normal: {
+                    age: 44,
+                    sex: "Male",
+                    chest_pain_type: "Typical angina",
+                    Max_heart_rate: 144,
+                    exercise_induced_angina: "Yes",
+                    resting_blood_pressure: 120,
+                    cholestoral: 169,
+                    fasting_blood_sugar: "Lower than 120 mg/ml",
+                    rest_ecg: "ST-T wave abnormality",
+                    oldpeak: 2.8,
+                    slope: "Upsloping",
+                    vessels_colored_by_flourosopy: "Zero",
+                    thalassemia: "Normal"
+                }
+            };
+
+            const data = cases[type];
+            if (!data) return;
+
+            for (const [key, value] of Object.entries(data)) {
+                const el = document.querySelector(`[name="${key}"]`);
+                if (el) {
+                    el.value = value;
+                    el.style.transition = "background-color 0.4s ease, border-color 0.4s ease";
+                    el.style.backgroundColor = "#e0f2fe";
+                    el.style.borderColor = "#0284c7";
+                    setTimeout(() => {
+                        el.style.backgroundColor = "";
+                        el.style.borderColor = "";
+                    }, 500);
+                }
+            }
+        }
+
+        function clearForm() {
+            const form = document.querySelector("form");
+            if (form) {
+                form.reset();
+            }
+        }
+    </script>
+</body>
+</html>

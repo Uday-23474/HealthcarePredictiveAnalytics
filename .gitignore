@@ -1,0 +1,61 @@
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+.conda/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VS Code settings
+.vscode/
+
+# Python build files
+build/
+dist/
+*.egg-info/
+
+# Log files
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary files
+*.tmp
+*.bak
+
+# Test and coverage files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated model files (uncomment if you don't want to upload models)
+# *.pkl
+# *.joblib
+
+# Private patient data
+private_data/
+patient_records/
+# Backup files
+*_backup.py
+
+# CatBoost generated files
+catboost_info/
+
+# Temporary testing
+test_mysql.py

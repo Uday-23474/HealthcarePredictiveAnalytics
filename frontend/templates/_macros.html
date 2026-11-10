@@ -1,0 +1,23 @@
+{% macro field(f) %}
+{% set err = errors.get(f.name) %}
+<div class="field{% if f.wide %} field--wide{% endif %}{% if err %} has-error{% endif %}">
+  <label for="f-{{ f.name }}">{{ f.label }}{% if f.unit %} <span class="unit">({{ f.unit }})</span>{% endif %}</label>
+  {% if f.kind == 'number' %}
+  <input id="f-{{ f.name }}" name="{{ f.name }}" type="number"
+         inputmode="{{ 'numeric' if f.step == 1 else 'decimal' }}"
+         min="{{ f.min }}" max="{{ f.max }}" step="{{ f.step }}"
+         value="{{ form.get(f.name, '') }}" required
+         aria-describedby="h-{{ f.name }} e-{{ f.name }}"{% if err %} aria-invalid="true"{% endif %}>
+  {% else %}
+  <select id="f-{{ f.name }}" name="{{ f.name }}" required
+          aria-describedby="h-{{ f.name }} e-{{ f.name }}"{% if err %} aria-invalid="true"{% endif %}>
+    <option value="" disabled{% if not form.get(f.name) %} selected{% endif %}>Select an option</option>
+    {% for value, text in f.options %}
+    <option value="{{ value }}"{% if form.get(f.name) == value %} selected{% endif %}>{{ text }}</option>
+    {% endfor %}
+  </select>
+  {% endif %}
+  <p class="hint" id="h-{{ f.name }}">{{ f.hint }}</p>
+  <p class="error" id="e-{{ f.name }}" role="alert">{{ err or '' }}</p>
+</div>
+{% endmacro %}

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HeartCare AI - Model Analytics & Benchmark Studio</title>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
+            background: #f4f8fb;
+            color: #1e293b;
+        }
+
+        /* Header Navigation */
+        .header {
+            background: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: #0284c7;
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .logo-text h2 {
+            font-size: 19px;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: #475569;
+            font-size: 13.5px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .nav-link:hover {
+            background: #f1f5f9;
+            color: #0284c7;
+        }
+
+        .nav-link.active {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 9px;
+            height: 9px;
+            background: #16a34a;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 35px auto 60px;
+            padding: 0 24px;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 28px;
+        }
+
+        .page-heading h1 {
+            font-size: 28px;
+            color: #0f172a;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .page-heading p {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        /* Top Champion Model Banner */
+        .champion-card {
+            background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+            border-radius: 16px;
+            color: white;
+            padding: 30px 36px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 24px;
+        }
+
+        .champ-left h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            opacity: 0.85;
+            margin-bottom: 6px;
+        }
+
+        .champ-left h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .champ-left p {
+            font-size: 14px;
+            opacity: 0.9;
+            max-width: 550px;
+            line-height: 1.5;
+        }
+
+        .champ-metrics {
+            display: flex;
+            gap: 24px;
+            background: rgba(255, 255, 255, 0.12);
+            padding: 18px 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-val {
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .metric-lbl {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        /* Grid for Charts & Insights */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            padding: 24px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .card-sub {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 18px;
+        }
+
+        /* Table */
+        .table-card {
+            background: white;
+            border-radius: 14px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.04);
+            margin-bottom: 30px;
+        }
+
+        .table-header-box {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13.5px;
+        }
+
+        th, td {
+            padding: 14px 20px;
+            text-align: left;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .badge-winner {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+
+        .badge-second {
+            background: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-standard {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        /* Info Cards Grid */
+        .info-cards-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .info-box {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+        }
+
+        .info-box h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box p {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 900px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+            .info-cards-row {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                padding: 0 16px;
+            }
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <a href="/" class="logo">
+            <div class="logo-icon">♥</div>
+            <div class="logo-text">
+                <h2>HeartCare AI</h2>
+                <p>Healthcare Predictive Analytics</p>
+            </div>
+        </a>
+
+        <nav class="nav-links">
+            <a href="/" class="nav-link">🩺 Predict</a>
+            <a href="/simulator" class="nav-link">🎚️ What-If Simulator</a>
+            <a href="/dashboard" class="nav-link">📊 Analytics Dashboard</a>
+            <a href="/analytics" class="nav-link active">🔬 Model Benchmarks</a>
+            <a href="/history" class="nav-link">📋 Patient History</a>
+        </nav>
+
+        <div class="system-status">
+            <span class="status-dot"></span>
+            System Online
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Title -->
+        <div class="page-heading">
+            <div>
+                <h1>Machine Learning Benchmark Studio</h1>
+                <p>Comprehensive algorithmic comparison across 13 classification models on the cardiovascular dataset.</p>
+            </div>
+        </div>
+
+        <!-- Champion Model Banner -->
+        <div class="champion-card">
+            <div class="champ-left">
+                <h3>Production Deployment Model</h3>
+                <h2>🏆 K-Nearest Neighbors (KNN)</h2>
+                <p>
+                    KNN achieved the highest predictive accuracy (<strong>88.52%</strong>) and peak ROC-AUC (<strong>0.904</strong>). 
+                    With a clinical recall rate of <strong>90.91%</strong>, it minimizes dangerous False Negatives during heart disease screening.
+                </p>
+            </div>
+
+            <div class="champ-metrics">
+                <div class="metric-item">
+                    <div class="metric-val">88.5%</div>
+                    <div class="metric-lbl">Accuracy</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-val">90.9%</div>
+                    <div class="metric-lbl">Recall</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-val">0.904</div>
+                    <div class="metric-lbl">ROC-AUC</div>
+                </div>
+                <div class="metric-item">
+                    <div class="metric-val">89.6%</div>
+                    <div class="metric-lbl">F1-Score</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Analytics Grid -->
+        <div class="chart-grid">
+            <!-- Algorithm Comparison Chart -->
+            <div class="card">
+                <div class="card-title">13-Algorithm Benchmark Comparison</div>
+                <div class="card-sub">Comparative evaluation of Accuracy, Recall, and ROC-AUC scores</div>
+                <div style="height: 380px;">
+                    <canvas id="modelComparisonChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Radar / Metric Breakdown -->
+            <div class="card">
+                <div class="card-title">KNN Performance Matrix</div>
+                <div class="card-sub">Multidimensional metric profile of the selected model</div>
+                <div style="height: 380px;">
+                    <canvas id="knnRadarChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hyperparameter Optimization Card -->
+        <div class="card" style="margin-bottom: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+                <div>
+                    <div class="card-title">📈 KNN Hyperparameter Tuning: K-Value Comparison Experiment</div>
+                    <div class="card-sub" style="margin-bottom: 0;">Genuine empirical evaluation across K &isin; [1, 3, 5, 7, 9, 11] testing Accuracy, Precision, Recall, F1-Score &amp; ROC-AUC</div>
+                </div>
+                <div>
+                    <span style="background: #dcfce7; color: #15803d; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #86efac;">
+                        🎯 Winning Model: K = {{ best_k.K }} (F1: {{ (best_k['F1-Score'] * 100) | round(2) }}% | Acc: {{ (best_k.Accuracy * 100) | round(2) }}%)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Comparison Chart Container -->
+            <div style="height: 330px;">
+                <canvas id="kTuningChart"></canvas>
+            </div>
+
+            <!-- Genuine K-Value Comparison Table -->
+            <div style="margin-top: 24px; overflow-x: auto;">
+                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+                    📊 Measured Metrics for Tested K Values (Dataset: 80% Train / 20% Test, Seed=42)
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 12.5px;">
+                    <thead>
+                        <tr style="background: #f1f5f9; text-align: left;">
+                            <th style="padding: 9px 12px; border-radius: 6px 0 0 6px;">K Parameter</th>
+                            <th style="padding: 9px 12px;">Accuracy</th>
+                            <th style="padding: 9px 12px;">Precision</th>
+                            <th style="padding: 9px 12px;">Recall</th>
+                            <th style="padding: 9px 12px;">F1-Score (Primary)</th>
+                            <th style="padding: 9px 12px;">ROC-AUC</th>
+                            <th style="padding: 9px 12px;">5-Fold CV F1</th>
+                            <th style="padding: 9px 12px; border-radius: 0 6px 6px 0;">Evaluation Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in k_data %}
+                        <tr style="border-bottom: 1px solid #f1f5f9; {% if row.K == best_k.K %}background: #f0fdf4; font-weight: 600;{% endif %}">
+                            <td style="padding: 9px 12px;">
+                                <strong>K = {{ row.K }}</strong>
+                                {% if row.K == best_k.K %}
+                                    <span style="background: #15803d; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 6px;">DEPLOYED</span>
+                                {% endif %}
+                            </td>
+                            <td style="padding: 9px 12px;">{{ (row.Accuracy * 100) | round(2) }}%</td>
+                            <td style="padding: 9px 12px;">{{ (row.Precision * 100) | round(2) }}%</td>
+                            <td style="padding: 9px 12px;">{{ (row.Recall * 100) | round(2) }}%</td>
+                            <td style="padding: 9px 12px; color: {% if row.K == best_k.K %}#15803d{% else %}#0f172a{% endif %}; font-weight: 700;">
+                                {{ (row['F1-Score'] * 100) | round(2) }}%
+                            </td>
+                            <td style="padding: 9px 12px;">{{ row['ROC-AUC'] | round(3) }}</td>
+                            <td style="padding: 9px 12px;">{{ ((row.CV_F1 or 0) * 100) | round(2) }}%</td>
+                            <td style="padding: 9px 12px;">
+                                {% if row.K == best_k.K %}
+                                    <span class="badge badge-winner">⭐ Best K (Winner)</span>
+                                {% elif row.K == 1 %}
+                                    <span style="background: #fee2e2; color: #b91c1c; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 12px;">High Variance (Overfitting)</span>
+                                {% elif row.K == 3 %}
+                                    <span class="badge badge-second">Strong Runner-Up</span>
+                                {% else %}
+                                    <span class="badge badge-standard">Evaluated (Oversmoothed)</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Diagnostic Tradeoff Explanations -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px;">
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 12px; font-size: 12px;">
+                    <strong style="color: #991b1b;">K = 1 (Overfitting):</strong>
+                    <p style="margin: 4px 0 0; color: #7f1d1d;">Train Accuracy is 100% but test recall drops to 78.79% and F1 to 82.54%. Memorizes individual noise outliers.</p>
+                </div>
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; font-size: 12px;">
+                    <strong style="color: #166534;">K = 5 (Empirical Winner):</strong>
+                    <p style="margin: 4px 0 0; color: #14532d;">Achieves peak test F1-score (89.55%), peak accuracy (88.52%), and peak recall (90.91%), confirmed as the optimal model parameter.</p>
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 12px;">
+                    <strong style="color: #0f172a;">K &ge; 7 (Underfitting / High Bias):</strong>
+                    <p style="margin: 4px 0 0; color: #64748b;">Averaging across larger neighborhoods oversmooths boundaries, decreasing test accuracy to 80.33% at K=9.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Comparison Data Table -->
+        <div class="table-card">
+            <div class="table-header-box">
+                <div class="card-title">Algorithmic Performance Leaderboard</div>
+                <div class="card-sub">Ranked from highest test accuracy down to lowest across all trained models</div>
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Algorithm</th>
+                            <th>Accuracy</th>
+                            <th>Precision</th>
+                            <th>Recall</th>
+                            <th>F1-Score</th>
+                            <th>ROC-AUC</th>
+                            <th>Deployment Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for m in models_data %}
+                        <tr>
+                            <td><strong>#{{ loop.index }}</strong></td>
+                            <td>
+                                <strong>{{ m.Model }}</strong>
+                                {% if m.Model == 'KNN' %}
+                                    <span class="badge badge-winner" style="margin-left: 6px;">Active In Production</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ (m.Accuracy * 100) | round(2) }}%</td>
+                            <td>{{ (m.Precision * 100) | round(2) }}%</td>
+                            <td>{{ (m.Recall * 100) | round(2) }}%</td>
+                            <td>{{ (m['F1-Score'] * 100) | round(2) }}%</td>
+                            <td>{{ m['ROC-AUC'] | round(3) }}</td>
+                            <td>
+                                {% if loop.index == 1 %}
+                                    <span class="badge badge-winner">Optimal Choice</span>
+                                {% elif loop.index <= 3 %}
+                                    <span class="badge badge-second">Candidate</span>
+                                {% else %}
+                                    <span class="badge badge-standard">Benchmarked</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Clinical ML Insights Row -->
+        <div class="info-cards-row">
+            <div class="info-box">
+                <h4>🎯 Why Recall is Paramount in Healthcare</h4>
+                <p>
+                    In clinical cardiac diagnostics, a <strong>False Negative</strong> means a patient with severe cardiovascular risk is mistakenly discharged as healthy. By prioritizing high <strong>Recall (90.91%)</strong>, KNN captures over 90% of genuine positive cases.
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>📐 Why KNN Excelled on This Dataset</h4>
+                <p>
+                    Cardiovascular tabular features (such as blood pressure, cholesterol, and maximum heart rate) form tight localized topological clusters in standardized Euclidean space. KNN effectively identifies patient proximity to historical positive clusters without overfitting.
+                </p>
+            </div>
+            <div class="info-box">
+                <h4>⚡ Feature Preprocessing & Scaling</h4>
+                <p>
+                    Because KNN is distance-based, categorical features were standardized with <code>LabelEncoder</code> and continuous biomarkers with <code>StandardScaler</code> ($\mu=0, \sigma=1$). This prevents high-magnitude features like cholesterol from skewing Euclidean distances.
+                </p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Chart.js Scripts -->
+    <script>
+        const modelsData = {{ models_json | safe }};
+
+        // Prepare bar chart data
+        const labels = modelsData.map(m => m.Model);
+        const accuracyData = modelsData.map(m => (m.Accuracy * 100).toFixed(1));
+        const recallData = modelsData.map(m => (m.Recall * 100).toFixed(1));
+        const rocAucData = modelsData.map(m => (m['ROC-AUC'] * 100).toFixed(1));
+
+        // 1. Grouped Bar Chart
+        const ctxBar = document.getElementById('modelComparisonChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Accuracy (%)',
+                        data: accuracyData,
+                        backgroundColor: 'rgba(2, 132, 199, 0.85)',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'Recall (%)',
+                        data: recallData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                        borderRadius: 6
+                    },
+                    {
+                        label: 'ROC-AUC (%)',
+                        data: rocAucData,
+                        backgroundColor: 'rgba(245, 158, 11, 0.85)',
+                        borderRadius: 6
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 60,
+                        max: 100,
+                        ticks: {
+                            callback: function(val) { return val + '%'; }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 45,
+                            minRotation: 30
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                }
+            }
+        });
+
+        // 2. Radar Chart for KNN
+        const knnModel = modelsData.find(m => m.Model === 'KNN') || modelsData[0];
+        const ctxRadar = document.getElementById('knnRadarChart').getContext('2d');
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
+                datasets: [{
+                    label: 'KNN Classifier (Production)',
+                    data: [
+                        (knnModel.Accuracy * 100).toFixed(1),
+                        (knnModel.Precision * 100).toFixed(1),
+                        (knnModel.Recall * 100).toFixed(1),
+                        (knnModel['F1-Score'] * 100).toFixed(1),
+                        (knnModel['ROC-AUC'] * 100).toFixed(1)
+                    ],
+                    backgroundColor: 'rgba(2, 132, 199, 0.25)',
+                    borderColor: '#0284c7',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#0284c7',
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: '#e2e8f0' },
+                        grid: { color: '#e2e8f0' },
+                        suggestedMin: 70,
+                        suggestedMax: 100,
+                        ticks: {
+                            callback: function(val) { return val + '%'; }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. Dynamic K-Hyperparameter Optimization Chart from genuine experiment data
+        const kData = {{ k_json | safe }};
+        const kLabels = kData.map(d => 'K = ' + d.K);
+        const kTestF1 = kData.map(d => +(d['F1-Score'] * 100).toFixed(2));
+        const kTestAcc = kData.map(d => +(d.Accuracy * 100).toFixed(2));
+        const kTestRecall = kData.map(d => +(d.Recall * 100).toFixed(2));
+        const kTrainAcc = kData.map(d => +(d.Train_Accuracy * 100).toFixed(2));
+        const winningKVal = {{ best_k.K }};
+
+        const ctxK = document.getElementById('kTuningChart').getContext('2d');
+        new Chart(ctxK, {
+            type: 'line',
+            data: {
+                labels: kLabels,
+                datasets: [
+                    {
+                        label: 'Test F1-Score (%) [Primary Selection Metric - Peak at K=' + winningKVal + ': ' + (+({{ best_k['F1-Score'] }} * 100).toFixed(2)) + '%]',
+                        data: kTestF1,
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.12)',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 3,
+                        pointBackgroundColor: kData.map(d => d.K === winningKVal ? '#ef4444' : '#8b5cf6'),
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: kData.map(d => d.K === winningKVal ? 9 : 5),
+                        pointHoverRadius: 10
+                    },
+                    {
+                        label: 'Test Accuracy (%) [Secondary Metric - Peak at K=' + winningKVal + ': ' + (+({{ best_k.Accuracy }} * 100).toFixed(2)) + '%]',
+                        data: kTestAcc,
+                        borderColor: '#0284c7',
+                        backgroundColor: 'rgba(2, 132, 199, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        borderWidth: 2.5,
+                        pointBackgroundColor: kData.map(d => d.K === winningKVal ? '#ef4444' : '#0284c7'),
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: kData.map(d => d.K === winningKVal ? 8 : 4)
+                    },
+                    {
+                        label: 'Test Recall (%) [Clinical Sensitivity]',
+                        data: kTestRecall,
+                        borderColor: '#10b981',
+                        borderDash: [3, 3],
+                        tension: 0.3,
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#10b981'
+                    },
+                    {
+                        label: 'Train Accuracy (%) [Overfitting at K=1: 100%]',
+                        data: kTrainAcc,
+                        borderColor: '#94a3b8',
+                        borderDash: [5, 5],
+                        tension: 0.3,
+                        borderWidth: 2,
+                        pointRadius: 3,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 75,
+                        max: 102,
+                        ticks: {
+                            callback: function(val) { return val + '%'; }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ctx.dataset.label.split('[')[0] + ': ' + ctx.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

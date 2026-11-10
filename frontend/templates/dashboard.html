@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | HeartCare AI{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="page-head">
+    <div>
+      <h1>Analytics dashboard</h1>
+      <p>A summary of every prediction saved so far.</p>
+    </div>
+    <div class="head-actions">
+      <a class="btn btn--primary" href="{{ url_for('predict') }}">New prediction</a>
+      <a class="btn" href="{{ url_for('history') }}">View history</a>
+    </div>
+  </div>
+
+  {% if dash.total %}
+  <div class="summary summary--4">
+    <div><div class="num">{{ dash.total }}</div><div class="lbl">Total predictions</div></div>
+    <div><div class="num">{{ dash.disease }}</div><div class="lbl">Heart disease detected</div></div>
+    <div><div class="num">{{ '%.1f'|format(dash.average) }}%</div><div class="lbl">Average probability</div></div>
+    <div><div class="num">{{ dash.high }}</div><div class="lbl">High risk results</div></div>
+  </div>
+
+  <div class="dash">
+    <section class="panel span-4" aria-labelledby="p-risk">
+      <h2 id="p-risk">Risk levels</h2>
+      <p class="panel__sub">Share of predictions in each band.</p>
+      <div class="donut" id="donut"></div>
+      <ul class="legend">
+        <li><i class="sw sw--low"></i>Low<b>{{ dash.risk.Low }}</b></li>
+        <li><i class="sw sw--moderate"></i>Moderate<b>{{ dash.risk.Moderate }}</b></li>
+        <li><i class="sw sw--high"></i>High<b>{{ dash.risk.High }}</b></li>
+      </ul>
+    </section>
+
+    <section class="panel span-8" aria-labelledby="p-hist">
+      <h2 id="p-hist">Probability spread</h2>
+      <p class="panel__sub">How many predictions fall in each 10% band of probability.</p>
+      <div class="histogram" id="histogram"></div>
+    </section>
+
+    <section class="panel span-4" aria-labelledby="p-sex">
+      <h2 id="p-sex">Outcome by sex</h2>
+      <p class="panel__sub">Heart disease detected and not detected.</p>
+      <div class="stacks">
+        {% for s in sex_rows %}
+        <div class="stack-row">
+          <div class="stack-row__label"><span>{{ s.label }}</span><span>{{ s.total }}</span></div>
+          <div class="stack" role="img" aria-label="{{ s.label }}: {{ s.disease }} detected, {{ s.none }} not detected">
+            {% if s.total %}
+            {% if s.disease %}<span class="seg-disease" style="width: {{ (s.disease / s.total * 100)|round(1) }}%">{{ s.disease }}</span>{% endif %}
+            {% if s.none %}<span class="seg-none" style="width: {{ (s.none / s.total * 100)|round(1) }}%">{{ s.none }}</span>{% endif %}
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <ul class="legend legend--inline">
+        <li><i class="sw sw--high"></i>Detected</li>
+        <li><i class="sw sw--low"></i>Not detected</li>
+      </ul>
+    </section>
+
+    <section class="panel span-8 panel--table" aria-labelledby="p-recent">
+      <h2 id="p-recent">Recent predictions</h2>
+      <p class="panel__sub">The latest {{ recent|length }} records.</p>
+      <div class="table-scroll">
+        <table class="data data--compact">
+          <thead>
+            <tr>
+              <th scope="col">Record</th>
+              <th scope="col">Date and time</th>
+              <th scope="col" class="num">Age</th>
+              <th scope="col">Sex</th>
+              <th scope="col" class="num">Probability</th>
+              <th scope="col">Risk level</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in recent %}
+            <tr>
+              <td><a href="{{ url_for('result', record_id=r.id) }}">{{ r.id }}</a></td>
+              <td>{{ r.created_at|fmt_dt }}</td>
+              <td class="num">{{ r.inputs.age }}</td>
+              <td>{{ r.inputs.sex }}</td>
+              <td class="num">{{ '%.1f'|format(r.probability) }}%</td>
+              <td><span class="pill pill--{{ r.risk|lower }}"><span class="dot"></span>{{ r.risk }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script type="application/json" id="dash-data">{{ dash|tojson }}</script>
+
+  {% else %}
+  <section class="empty">
+    <h2>Nothing to summarise yet</h2>
+    <p>Charts appear after the first prediction is saved.</p>
+    <a class="btn btn--primary" href="{{ url_for('predict') }}">New prediction</a>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
